@@ -27,38 +27,24 @@ CREATE TABLE IF NOT EXISTS vision_analysis (
 ALTER TABLE disaster_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vision_analysis ENABLE ROW LEVEL SECURITY;
 
--- 4. Create Policies (Idempotent)
-DO $$
-BEGIN
-  -- disaster_images SELECT policy
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'disaster_images' AND policyname = 'Allow select disaster_images'
-  ) THEN
-    CREATE POLICY "Allow select disaster_images" ON disaster_images FOR SELECT USING (true);
-  END IF;
+-- 4. Reset & Create Policies (Idempotent: drops if already exists, then creates)
+DROP POLICY IF EXISTS "Allow select disaster_images" ON disaster_images;
+DROP POLICY IF EXISTS "Allow insert disaster_images" ON disaster_images;
+DROP POLICY IF EXISTS "Allow select vision_analysis" ON vision_analysis;
+DROP POLICY IF EXISTS "Allow insert vision_analysis" ON vision_analysis;
 
-  -- disaster_images INSERT policy (scoped check requiring valid zone_id and storage_path)
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'disaster_images' AND policyname = 'Allow insert disaster_images'
-  ) THEN
-    CREATE POLICY "Allow insert disaster_images" ON disaster_images FOR INSERT WITH CHECK (
-      zone_id IS NOT NULL AND length(storage_path) > 0
-    );
-  END IF;
+CREATE POLICY "Allow select disaster_images" ON disaster_images 
+FOR SELECT USING (true);
 
-  -- vision_analysis SELECT policy
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'vision_analysis' AND policyname = 'Allow select vision_analysis'
-  ) THEN
-    CREATE POLICY "Allow select vision_analysis" ON vision_analysis FOR SELECT USING (true);
-  END IF;
+CREATE POLICY "Allow insert disaster_images" ON disaster_images 
+FOR INSERT WITH CHECK (
+  zone_id IS NOT NULL AND length(storage_path) > 0
+);
 
-  -- vision_analysis INSERT policy (scoped check requiring image_id reference and valid confidence)
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies WHERE tablename = 'vision_analysis' AND policyname = 'Allow insert vision_analysis'
-  ) THEN
-    CREATE POLICY "Allow insert vision_analysis" ON vision_analysis FOR INSERT WITH CHECK (
-      image_id IS NOT NULL AND confidence_score >= 0
-    );
-  END IF;
-END $$;
+CREATE POLICY "Allow select vision_analysis" ON vision_analysis 
+FOR SELECT USING (true);
+
+CREATE POLICY "Allow insert vision_analysis" ON vision_analysis 
+FOR INSERT WITH CHECK (
+  image_id IS NOT NULL AND confidence_score >= 0
+);
