@@ -200,6 +200,26 @@ npm run build
 
 ---
 
+## 👥 Team & Credits
+
+### 👑 Core Leadership & Engineering
+
+| Role | Name | GitHub | Contribution |
+| :--- | :--- | :--- | :--- |
+| **Core Developer & Lead Engineer** | **Zafran** | [@zafran-coder](https://github.com/zafran-coder) | Full system architecture, end-to-end codebase implementation, deterministic 5-factor risk engine, Gemini Vision reconnaissance pipeline, Supabase vector RAG, and production deployment. |
+
+### 🤝 Contributors & Supporting Roles
+
+| Name | GitHub | Role & Responsibilities |
+| :--- | :--- | :--- |
+| **Aima Muzammil** | [@AimaMuzammil](https://github.com/AimaMuzammil) | Project Ideation & Presentation |
+| **Iman Hameed** | [@imanhameed167-collab](https://github.com/imanhameed167-collab) | QA Testing & Bug Reporting |
+| **Samia Akram** | [@SamiaAkram-74](https://github.com/SamiaAkram-74) | Documentation & README Review |
+| **Syeda Sahara Murtaza** | [@Syeda-Sahara-Murtaza](https://github.com/Syeda-Sahara-Murtaza) | UI/UX Feedback |
+| **Tayyab Irshad** | [@Tayyab-Irshad](https://github.com/Tayyab-Irshad) | Research & Data Gathering |
+
+---
+
 ## 📄 License
 
 This project is licensed under the **MIT License**. Built for humanitarian disaster triage and emergency decision support.
