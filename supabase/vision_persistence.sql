@@ -2,16 +2,16 @@
 -- Target: Remote Supabase PostgreSQL
 -- Security: RLS remains strictly ENABLED. Scoped insert policies prevent unrestricted writes.
 
--- 1. Create disaster_images table if it does not exist
+-- 1. Create disaster_images table (uses zone_id UUID without hard external dependency)
 CREATE TABLE IF NOT EXISTS disaster_images (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  zone_id UUID REFERENCES affected_zones(id) ON DELETE CASCADE,
+  zone_id UUID NOT NULL,
   image_url TEXT NOT NULL,
   storage_path TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Create vision_analysis table if it does not exist
+-- 2. Create vision_analysis table
 CREATE TABLE IF NOT EXISTS vision_analysis (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   image_id UUID REFERENCES disaster_images(id) ON DELETE CASCADE,
@@ -37,7 +37,7 @@ BEGIN
     CREATE POLICY "Allow select disaster_images" ON disaster_images FOR SELECT USING (true);
   END IF;
 
-  -- disaster_images INSERT policy (scoped check requiring valid foreign-key zone_id and storage_path)
+  -- disaster_images INSERT policy (scoped check requiring valid zone_id and storage_path)
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE tablename = 'disaster_images' AND policyname = 'Allow insert disaster_images'
   ) THEN
