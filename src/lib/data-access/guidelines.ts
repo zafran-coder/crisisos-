@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, isSupabaseServerConfigured } from '@/lib/supabase/server';
 import { EmergencyGuideline } from '@/types/database';
 
 export const FALLBACK_GUIDELINES: Partial<EmergencyGuideline>[] = [
@@ -39,10 +39,7 @@ export async function getEmergencyGuidelines(category?: string): Promise<{
   source: 'supabase' | 'fallback';
   error?: string;
 }> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
+  if (!isSupabaseServerConfigured()) {
     return {
       guidelines: FALLBACK_GUIDELINES,
       source: 'fallback',

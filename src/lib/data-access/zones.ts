@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, isSupabaseServerConfigured } from '@/lib/supabase/server';
 import { getFallbackZonesWithRisk } from '@/data/fallback-zones';
 import { calculateDeterministicRisk } from '@/lib/risk-engine/calculator';
 import { DeterministicRiskResult, RiskFactors } from '@/lib/risk-engine/types';
@@ -64,13 +64,7 @@ export async function getZones(): Promise<{
     source: 'fallback' as const,
   }));
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
+  if (!isSupabaseServerConfigured()) {
     return {
       zones: fallbackList,
       source: 'fallback',

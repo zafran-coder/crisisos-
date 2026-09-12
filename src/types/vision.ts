@@ -80,8 +80,11 @@ export interface VisionApiResponse {
   model?: string;
   analysis?: GeminiVisionAnalysis;
   grounding?: VisionGroundingContext;
+  source?: 'supabase' | 'server-cache';
   persistence?: {
     persisted: boolean;
+    source: 'supabase' | 'server-cache';
+    isTemporaryFallback?: boolean;
     imageId?: string;
     analysisId?: string;
     error?: string | null;

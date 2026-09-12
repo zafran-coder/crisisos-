@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, isSupabaseServerConfigured } from '@/lib/supabase/server';
 import { FALLBACK_INCIDENT } from '@/data/fallback-zones';
 import { Incident } from '@/types/database';
 
@@ -19,13 +19,7 @@ export interface ActiveIncidentDetails {
  * Retrieves the currently active emergency incident telemetry.
  */
 export async function getActiveIncident(): Promise<ActiveIncidentDetails> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
+  if (!isSupabaseServerConfigured()) {
     return {
       incident: FALLBACK_INCIDENT,
       source: 'fallback',

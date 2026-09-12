@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Camera,
   Upload,
@@ -121,6 +121,39 @@ export function ImageAnalysisView({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Hydrate saved analysis for the selected zone on initial mount or when zone changes
+  useEffect(() => {
+    let isCurrent = true;
+
+    async function fetchSavedAnalysis() {
+      if (!selectedZone?.code) return;
+      // Keep existing active result if it matches current selected zone
+      if (apiResult?.grounding?.zone_code === selectedZone.code) return;
+
+      try {
+        const queryParams = new URLSearchParams({
+          zoneCode: selectedZone.code,
+          zoneId: selectedZone.id,
+        });
+        const res = await fetch(`/api/vision?${queryParams.toString()}`);
+        if (res.ok) {
+          const data = (await res.json()) as VisionApiResponse;
+          if (data.status === 'ok' && data.analysis && isCurrent) {
+            setApiResult(data);
+          }
+        }
+      } catch {
+        // Safe fallback if offline or network error
+      }
+    }
+
+    fetchSavedAnalysis();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [selectedZone?.code, selectedZone?.id, apiResult?.grounding?.zone_code]);
 
   // Helper to convert SVG to Data URL
   const loadSvgPreset = (preset: (typeof DEMO_PRESETS)[0]) => {
@@ -780,27 +813,61 @@ export function ImageAnalysisView({
 
               {/* Database Persistence Status Bar */}
               {apiResult.persistence && (
-                <div className="bg-[#090d14] border border-slate-800 rounded p-2.5 flex items-center justify-between text-xs font-mono">
-                  <div className="flex items-center gap-2">
-                    <Database className="h-3.5 w-3.5 text-cyan-400" />
-                    <span className="text-slate-400">SUPABASE PERSISTENCE:</span>
-                    {apiResult.persistence.persisted ? (
-                      <span className="text-emerald-400 font-bold flex items-center gap-1">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                        RECORD STORED IN disaster_images & vision_analysis
-                      </span>
-                    ) : (
-                      <span className="text-amber-400 font-bold flex items-center gap-1">
-                        <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
-                        {apiResult.persistence.error || 'Awaiting privileged service key'}
+                <div
+                  className={`rounded p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs font-mono border ${
+                    apiResult.persistence.persisted && apiResult.source === 'supabase'
+                      ? 'bg-[#090d14] border-emerald-800/80 text-emerald-300'
+                      : 'bg-amber-950/20 border-amber-800/70 text-amber-300'
+                  }`}
+                >
+                  <div className="flex items-start sm:items-center gap-2">
+                    <Database
+                      className={`h-4 w-4 mt-0.5 sm:mt-0 flex-shrink-0 ${
+                        apiResult.persistence.persisted && apiResult.source === 'supabase'
+                          ? 'text-emerald-400'
+                          : 'text-amber-400'
+                      }`}
+                    />
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-slate-400 font-bold">DATABASE STATUS:</span>
+                        {apiResult.persistence.persisted && apiResult.source === 'supabase' ? (
+                          <span className="text-emerald-400 font-bold flex items-center gap-1">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                            PERSISTED TO SUPABASE (disaster_images & vision_analysis)
+                          </span>
+                        ) : (
+                          <span className="text-amber-400 font-bold flex items-center gap-1">
+                            <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
+                            NOT PERSISTED // TEMPORARY SERVER CACHE ONLY
+                          </span>
+                        )}
+                      </div>
+                      {!apiResult.persistence.persisted && (
+                        <p className="text-[11px] text-amber-200/80 leading-snug">
+                          {apiResult.persistence.error ||
+                            'Database write was rejected (RLS policy restriction). Record is temporarily available in server memory only and will not persist across restarts.'}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 self-end sm:self-center font-mono text-[10px]">
+                    <span
+                      className={`px-1.5 py-0.5 rounded border uppercase font-bold ${
+                        apiResult.persistence.persisted && apiResult.source === 'supabase'
+                          ? 'bg-emerald-950/70 border-emerald-700 text-emerald-300'
+                          : 'bg-amber-950/70 border-amber-700 text-amber-300'
+                      }`}
+                    >
+                      SOURCE: {apiResult.source === 'supabase' ? 'SUPABASE DB' : 'TEMPORARY SERVER CACHE'}
+                    </span>
+                    {apiResult.persistence.imageId && (
+                      <span className="text-slate-400 hidden sm:inline">
+                        ID: {apiResult.persistence.imageId.slice(0, 8)}...
                       </span>
                     )}
                   </div>
-                  {apiResult.persistence.imageId && (
-                    <span className="text-slate-400 text-[10px] hidden sm:inline">
-                      IMG_ID: {apiResult.persistence.imageId.slice(0, 8)}...
-                    </span>
-                  )}
                 </div>
               )}
             </div>

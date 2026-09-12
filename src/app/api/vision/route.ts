@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getGeminiClient, isGeminiConfigured, GEMINI_MODELS } from '@/lib/gemini';
 import { getZones } from '@/lib/data-access/zones';
-import { persistVisionAnalysis } from '@/lib/data-access/vision';
+import { persistVisionAnalysis, getLatestVisionAnalysis } from '@/lib/data-access/vision';
 import { recordAuditEvent } from '@/lib/data-access/audit';
 import {
   GeminiVisionAnalysis,
@@ -459,8 +459,12 @@ export async function POST(request: NextRequest) {
 
     const persistenceResult = await persistVisionAnalysis({
       zoneId: effectiveZoneId,
-      imageUrl: previewUrl.length < 500000 ? previewUrl : storagePath,
+      zoneCode: grounding.zone_code,
+      imageUrl: storagePath,
       storagePath,
+      previewUrl,
+      grounding,
+      model: GEMINI_MODELS.VISION,
       analysis: parsedAnalysis,
     });
 
@@ -469,14 +473,17 @@ export async function POST(request: NextRequest) {
     // 8. Return comprehensive, strictly grounded API response
     const apiResponse: VisionApiResponse = {
       status: 'ok',
+      source: persistenceResult.source,
       model: GEMINI_MODELS.VISION,
       analysis: parsedAnalysis,
       grounding,
       persistence: {
-        persisted: persistenceResult.success,
+        persisted: persistenceResult.persisted,
+        source: persistenceResult.source,
+        isTemporaryFallback: persistenceResult.isTemporaryFallback,
         imageId: persistenceResult.imageId,
         analysisId: persistenceResult.analysisId,
-        error: persistenceResult.error || null,
+        error: persistenceResult.error,
       },
       latencyMs,
       attempts: visionResult.attempts,
@@ -552,9 +559,23 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/vision
- * Documentation and health status for the Vision AI subsystem.
+ * Documentation and health status, or retrieval of latest persisted vision analysis for a zone.
+ * Query parameters:
+ *  - ?zoneCode=F-03
+ *  - ?zoneId=<uuid>
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const zoneCode = searchParams.get('zoneCode');
+  const zoneId = searchParams.get('zoneId');
+
+  if (zoneCode || zoneId) {
+    const saved = await getLatestVisionAnalysis(zoneCode || undefined, zoneId || undefined);
+    if (saved) {
+      return NextResponse.json(saved);
+    }
+  }
+
   return NextResponse.json({
     status: 'ok',
     service: 'CrisisOS Gemini Vision Disaster Assessment Engine',

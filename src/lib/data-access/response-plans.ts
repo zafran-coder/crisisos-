@@ -1,5 +1,5 @@
 import 'server-only';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createServerSupabaseClient, isSupabaseServerConfigured } from '@/lib/supabase/server';
 import { FALLBACK_GUIDELINES } from '@/lib/data-access/guidelines';
 import { FALLBACK_INCIDENT, getFallbackZonesWithRisk } from '@/data/fallback-zones';
 import {
@@ -63,11 +63,8 @@ export interface GatheredPlanContext {
  * and emergency guidelines.
  */
 export async function gatherPlanContext(incidentId?: string): Promise<GatheredPlanContext> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
   // 1. If Supabase is unreachable, build factual context from verified canonical fallback
-  if (!supabaseUrl || !supabaseKey) {
+  if (!isSupabaseServerConfigured()) {
     return getFallbackPlanContext();
   }
 
