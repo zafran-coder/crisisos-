@@ -6,7 +6,9 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-Vision_%26_Flash-4285F4?style=for-the-badge&logo=google)](https://ai.google.dev/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_%26_pgvector-3ECF8E?style=for-the-badge&logo=supabase)](https://supabase.com/)
-[![Vercel](https://img.shields.io/badge/Vercel-Deployed-white?style=for-the-badge&logo=vercel)](https://vercel.com/)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Vercel-000000?style=for-the-badge&logo=vercel)](https://crisisos-git-main-zaf661988-5935.vercel.app/)
+
+> 🌐 **Live Production Deployment**: [https://crisisos-git-main-zaf661988-5935.vercel.app/](https://crisisos-git-main-zaf661988-5935.vercel.app/)
 
 **CrisisOS** is an intelligent disaster command and response platform engineered to answer the single most urgent question in crisis operations:
 
