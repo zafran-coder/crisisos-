@@ -212,10 +212,10 @@ npm run build
 
 | Name | GitHub | Role & Responsibilities |
 | :--- | :--- | :--- |
-| **Aima Muzammil** | [@AimaMuzammil](https://github.com/AimaMuzammil) | Project Ideation & Presentation |
-| **Iman Hameed** | [@imanhameed167-collab](https://github.com/imanhameed167-collab) | QA Testing & Bug Reporting |
-| **Samia Akram** | [@SamiaAkram-74](https://github.com/SamiaAkram-74) | Documentation & README Review |
-| **Syeda Sahara Murtaza** | [@Syeda-Sahara-Murtaza](https://github.com/Syeda-Sahara-Murtaza) | UI/UX Feedback |
+| **Aima Muzammil** | [@AimaMuzammil](https://github.com/AimaMuzammil) | Project Ideation & Lead |
+| **Iman Hameed** | [@imanhameed167-collab](https://github.com/imanhameed167-collab) | QA Testing & Presenter |
+| **Samia Akram** | [@SamiaAkram-74](https://github.com/SamiaAkram-74) | Documentation & Slides |
+| **Syeda Sahara Murtaza** | [@Syeda-Sahara-Murtaza](https://github.com/Syeda-Sahara-Murtaza) | PRD & Presenter  |
 | **Tayyab Irshad** | [@Tayyab-Irshad](https://github.com/Tayyab-Irshad) | Research & Data Gathering |
 
 ---
